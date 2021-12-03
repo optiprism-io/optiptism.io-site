@@ -341,8 +341,7 @@
 
     // Window on Load
     $(window).on("load", function() {
-        MOMB.masonry(),
-        MOMB.PreLoad();
+        MOMB.masonry()
     });
     // Document on Ready
     $(document).ready(function() {
