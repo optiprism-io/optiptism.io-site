@@ -378,31 +378,281 @@ components:
       type: object
       properties:
         events:
-          type: object
+          type: array
+          items:
+            $ref: '#/components/schemas/EventSegmentationEvent'
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventSegmentationFilter'
+        breakdowns:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventSegmentationBreakdown'
+        queries:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventSegmentationQuery'
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventSegmentationSegment'
+
+    EventSegmentationEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventRef'
+        - type: object
           properties:
-            allOf:
-              - $ref: '#/components/schemas/EventRef'
-              - type: object
-                  type: object
-                  properties:
-                    filters:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          name:
-                            type: string
-    Filter:
+            filters:
+              type: array
+              items:
+                type: object
+                oneOf:
+                  - $ref: '#/components/schemas/FilterByProperty'
+
+    EventSegmentationFilter:
       type: object
+      oneOf:
+        - $ref: '#/components/schemas/FilterByProperty'
+        - $ref: '#/components/schemas/FilterByCohort'
+
+    EventSegmentationBreakdown:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/BreakdownByCommonProperty'
+        - $ref: '#/components/schemas/BreakdownByEventProperty'
+
+    EventSegmentationSegment:
+      type: object
+      properties:
+        name:
+          type: string
+        conditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/SegmentCondition'
+    SegmentCondition:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/SegmentConditionHasPropertyValue'
+        - $ref: '#/components/schemas/SegmentConditionHadPropertyValue'
+        - $ref: '#/components/schemas/SegmentConditionDidEvent'
+        - $ref: '#/components/schemas/SegmentConditionReteined'
+    SegmentConditionHasPropertyValue:
+      type: object
+      properties:
+        conditionType:
+          type: string
+          enum:
+            - hasProperty
+        propertyName:
+          type: string
+    SegmentConditionHadPropertyValue:
+      type: object
+      properties:
+        conditionType:
+          type: string
+          enum:
+            - hadProperty
+        propertyName:
+          type: string
+    SegmentConditionDidEvent:
+      type: object
+      properties:
+        queryType:
+          type: string
+          enum:
+            - didEvent
+        eventName:
+          type: string
+    SegmentConditionReteined:
+      type: object
+    EventSegmentationQuery:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/QuerySimple'
+        - $ref: '#/components/schemas/QueryAggregatePerUser'
+        - $ref: '#/components/schemas/QueryAggregatePropertyPerUser'
+        - $ref: '#/components/schemas/QueryAggregateProperty'
+    QuerySimple:
+      type: object
+      properties:
+        queryType:
+          type: string
+          enum:
+            - countEvents
+            - countUniqueUsers
+            - weeklyActiveUsers
+            - monthlyActiveUsers
+    QueryAggregatePerUser:
+      type: object
+      properties:
+        queryType:
+          type: string
+          enum:
+            - countEventsPerUser
+        aggregatePerUser:
+          $ref: '#/components/schemas/QueryUserAggregate'
+    QueryAggregatePropertyPerUser:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            queryType:
+              type: string
+              enum:
+                - aggregatePropertyPerUser
+        - $ref: '#/components/schemas/PropertyRef'
+        - type: object
+          properties:
+            aggregatePerUser:
+              $ref: '#/components/schemas/QueryUserAggregate'
+            aggregate:
+              $ref: '#/components/schemas/QueryAggregate'
+    QueryAggregateProperty:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            queryType:
+              type: string
+              enum:
+                - aggregateProperty
+        - $ref: '#/components/schemas/PropertyRef'
+        - type: object
+          properties:
+            aggregate:
+              $ref: '#/components/schemas/QueryAggregate'
+    QueryFormula:
+      type: object
+      properties:
+        queryType:
+          type: string
+          enum:
+            - formula
+        formula:
+          type: string
+    QueryUserAggregate:
+      type: string
+      enum:
+        - sum
+        - avg
+        - median
+        - min
+        - max
+        - distinctCount
+
+    QueryAggregate:
+      type: string
+      enum:
+        - sum
+        - avg
+        - median
+        - min
+        - max
+        - distinctCount
+        - 25thPercentile
+        - 75thPercentile
+        - 90thPercentile
+        - 99thPercentile
+
+
+    BreakdownByCommonProperty:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            breakdownType:
+              type: string
+              enum:
+                - property
+        - $ref: '#/components/schemas/PropertyRef'
+    BreakdownByEventProperty:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            breakdownType:
+              type: string
+              enum:
+                - property
+        - $ref: '#/components/schemas/EventRef'
+        - $ref: '#/components/schemas/PropertyRef'
+
+    FilterByCohort:
+      type: object
+      properties:
+        filterType:
+          type: string
+          enum:
+            - cohort
+        cohortId:
+          type: integer
+          format: int64
+    FilterByProperty:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            filterType:
+              type: string
+              enum:
+                - property
+        - $ref: '#/components/schemas/PropertyRef'
+        - type: object
+          properties:
+            operation:
+              $ref: '#/components/schemas/Operation'
+            values:
+              type: array
+              items:
+                $ref: '#/components/schemas/Value'
+    Value:
+      type: object
+      oneOf:
+        - type: string
+        - type: integer
+        - type: boolean
+        - type: array
+          items:
+            type: string
+        - type: array
+          items:
+            type: integer
+        - type: array
+          items:
+            type: boolean
+    Operation:
+      type: string
+      enum:
+        - "="
+        - "neq"
+        - "gt"
+        - "gte"
+        - "lt"
+        - "lte"
+        - "true"
+        - "false"
+        - "exists"
+        - "empty"
+        - "arr_all"
+        - "arr_any"
+        - "arr_none"
+        - "regex"
+    PropertyRef:
+      type: object
+      properties:
+        propertyName:
+          type: string
+        propertyType:
+          $ref: '#/components/schemas/PropertyType'
     EventRef:
       type: object
       properties:
+        eventName:
+          type: string
         eventType:
           $ref: '#/components/schemas/EventType'
-        eventId:
-          type: integer
-          format: int64
-
     EventType:
       type: string
       enum:
