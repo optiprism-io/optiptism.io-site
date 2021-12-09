@@ -1,0 +1,165 @@
+{
+  "time": {
+    "type": "last",
+    "count": 7,
+    "unit": "day"
+  },
+  "intervalUnit": "day",
+  "chartType": "line",
+  "analysis": {
+    "type": "rollingAverage",
+    "window": 7
+  },
+  "compare": {
+    "offset": 7,
+    "unit": "day"
+  },
+  "events": [
+    {
+      "eventName": "View Product",
+      "filters": [
+        {
+          "filterType": "property",
+          "propertyName": "Category",
+          "operation": "=",
+          "values": [
+            "tv",
+            "phone"
+          ]
+        },
+        {
+          "filterType": "property",
+          "propertyName": "Price",
+          "operation": ">",
+          "values": [
+            3.14
+          ]
+        }
+      ]
+    },
+    {
+      "eventName": "Money",
+      "eventType": "custom",
+      "filters": [
+        {
+          "filterType": "property",
+          "propertyName": "Some Prop",
+          "operation": "exists"
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "filterType": "property",
+      "propertyName": "Country",
+      "operation": "eq",
+      "values": [
+        "Spain"
+      ]
+    },
+    {
+      "filterType": "cohort",
+      "cohortId": 123
+    }
+  ],
+  "breakdowns": [
+    {
+      "breakdownType": "userProperty",
+      "propertyName": "Device Type"
+    },
+    {
+      "breakdownType": "eventCommonProperty",
+      "propertyName": "Device Type"
+    },
+    {
+      "breakdownType": "eventProperty",
+      "eventName": "View Product",
+      "propertyName": "Page ID"
+    },
+    {
+      "breakdownType": "cohort",
+      "cohortId": 123
+    }
+  ],
+  "queries": [
+    {
+      "queryType": "simple",
+      "query": "countEvents"
+    },
+    {
+      "queryType": "aggregatePerUser",
+      "query": "countEvents",
+      "aggregate": "avg"
+    },
+    {
+      "queryType": "aggregatePropertyPerUser",
+      "propertyName": "Revenue",
+      "propertyType": "event",
+      "aggregatePerUser": "sum",
+      "aggregate": "avg"
+    },
+    {
+      "queryType": "aggregateProperty",
+      "propertyName": "Revenue",
+      "propertyType": "event",
+      "aggregate": "avg"
+    },
+    {
+      "queryType": "formula",
+      "formula": "A+B"
+    }
+  ],
+  "segments": [
+    {
+      "name": "1",
+      "conditions": [
+        {
+          "conditionType": "hasPropertyValue",
+          "propertyName": "device",
+          "operation": "=",
+          "values": [
+            "iphone"
+          ]
+        },
+        {
+          "conditionType": "hadPropertyValue",
+          "propertyName": "device",
+          "operation": "=",
+          "values": [
+            "android"
+          ],
+          "time": {
+            "type": "range",
+            "from": "2020-01-01",
+            "to": "2020-10-01"
+          }
+        },
+        {
+          "conditionType": "didEvent",
+          "eventName": "Purchase Product",
+          "filters": [
+            {
+              "filterType": "property",
+              "propertyName": "price",
+              "operation": ">",
+              "values": [
+                1
+              ]
+            }
+          ],
+          "aggregate": {
+            "type": "count",
+            "operation": "=",
+            "value": 1,
+            "time": {
+              "type": "afterFirstUse",
+              "within": 5,
+              "unit": "day"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
